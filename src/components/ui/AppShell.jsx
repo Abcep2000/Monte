@@ -2,16 +2,36 @@
 import AppHeader from "./AppHeader";
 import AppFooter from "./AppFooter";
 
-export default function AppShell({ user, activeTab, setActiveTab, children }) {
+export default function AppShell({ children, user, activeTab, setActiveTab }) {
   return (
-    <div className="h-screen flex flex-col bg-[#fcfaf7]">
+    <div className="min-h-screen flex flex-col bg-[#fcfaf7]">
+
+      {/* HEADER */}
       <AppHeader user={user} />
 
-      <main className="flex-1 overflow-y-auto px-4 pb-20 max-w-3xl mx-auto w-full">
+      {/* SCROLLING CONTENT */}
+      <main
+        className="
+          flex-1
+          overflow-y-auto
+          pt-20
+          pb-20
+          w-full
+          max-w-3xl
+          mx-auto
+          px-4
+          hidescrollbar
+        "
+      >
         {children}
       </main>
 
-      <AppFooter activeTab={activeTab} setActiveTab={setActiveTab} user={user} />
+      {/* FOOTER */}
+      <AppFooter
+        user={user}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
     </div>
   );
 }

@@ -2,36 +2,24 @@
 
 import React from "react";
 
-// Eltern-Ansicht
+// Eltern‑Ansicht
 import AbsenceReport from "./AbsenceReport";
 
-// Team-Ansicht (Wrapper, da die Team-View aus mehreren Komponenten besteht)
+// Team‑Ansicht (Wrapper wird künftig nicht mehr genutzt)
 import AbsenceTeamWrapper from "./AbsenceTeamWrapper";
 
-// Admin-Ansicht
+// Admin‑Ansicht
 import AdminAbsenceDashboard from "./AdminAbsenceDashboard";
 
 export default function AbsenceArea({ user }) {
   const role = user?.role;
-
   if (!role) return null;
 
-  // ---------------------------
-  // ADMIN → komplette Übersicht
-  // ---------------------------
-  if (role === "admin") {
+  // Sowohl ADMIN als auch TEAM nutzen künftig dieselbe Übersicht
+  if (role === "admin" || role === "team") {
     return <AdminAbsenceDashboard user={user} />;
   }
 
-  // ---------------------------
-  // TEAM → Wrapper inkl. Tools
-  // ---------------------------
-  if (role === "team") {
-    return <AbsenceTeamWrapper user={user} />;
-  }
-
-  // ---------------------------
-  // ELTERN → Meldungen definieren
-  // ---------------------------
+  // Eltern können Abwesenheiten melden
   return <AbsenceReport user={user} />;
 }

@@ -1,4 +1,3 @@
-// src/components/group/ListPoll.jsx
 import React from "react";
 import { StorageService } from "../../lib/storage";
 
@@ -23,29 +22,32 @@ export default function ListPoll({ list, user, isAdmin, reload }) {
 
     const updated = [...all];
     const li = { ...updated[idx] };
-    const arr = [...li.items];
-
-    const entry = { ...arr[itemIndex] };
-    entry.votes = Array.isArray(entry.votes) ? [...entry.votes] : [];
 
     const me = user.username;
-    const myIndex = entry.votes.indexOf(me);
+    // Prüfen, ob auf diesem Eintrag bereits eine Stimme von mir liegt
+    const currentItem = li.items[itemIndex];
+    const currentVotes = Array.isArray(currentItem.votes)
+      ? [...currentItem.votes]
+      : [];
+    const hadMyVote = currentVotes.includes(me);
 
-    // Single-choice: zuerst eigene Stimme entfernen
-    li.items.forEach((i) => {
-      if (Array.isArray(i.votes)) {
-        const pos = i.votes.indexOf(me);
-        if (pos >= 0) i.votes.splice(pos, 1);
-      }
+    // Eigene Stimme aus allen Optionen entfernen (Single‑Choice)
+    li.items = li.items.map((item) => {
+      const votes = Array.isArray(item.votes) ? [...item.votes] : [];
+      const filteredVotes = votes.filter((v) => v !== me);
+      return { ...item, votes: filteredVotes };
     });
 
-    // Falls diese Option schon gewählt war → nicht erneut hinzufügen
-    if (myIndex < 0) {
-      entry.votes.push(me);
+    // Wenn vorher noch nicht für diese Option gestimmt wurde, Stimme setzen
+    if (!hadMyVote) {
+      const updatedItem = { ...li.items[itemIndex] };
+      const votes = Array.isArray(updatedItem.votes)
+        ? [...updatedItem.votes]
+        : [];
+      votes.push(me);
+      updatedItem.votes = votes;
+      li.items[itemIndex] = updatedItem;
     }
-
-    arr[itemIndex] = entry;
-    li.items = arr;
 
     updated[idx] = li;
     StorageService.set("grouplists", updated);
@@ -83,7 +85,7 @@ export default function ListPoll({ list, user, isAdmin, reload }) {
           "w-full flex flex-col items-center justify-center px-4 py-4 rounded-2xl border text-sm font-bold transition text-center";
 
         if (isAdmin) {
-          // TEAM = Read only
+          // TEAM = read-only
           return (
             <div
               key={idx}
@@ -95,7 +97,7 @@ export default function ListPoll({ list, user, isAdmin, reload }) {
           );
         }
 
-        // ELTERN = klickbare Buttons
+        // Eltern = klickbare Buttons
         return (
           <button
             key={idx}
